@@ -72,10 +72,10 @@ kind: Service
 metadata:
   name: todo-app-todo-app-web-service
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   ports:
-  - port: 80
-    targetPort: 8000
+  - port: 
+    targetPort: 
   selector:
     app: todo-app-todo-app-web
 ---
@@ -96,10 +96,10 @@ spec:
     spec:
       containers:
       - name: web
-        image: "pengchaoma/flask-todo-app:1.1.26"
+        image: "pengchaoma/flask-todo-app:1.1.27"
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 8000
+        - containerPort: 
         env:
         - name: DATABASE_URL
           valueFrom:
