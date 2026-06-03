@@ -35,9 +35,12 @@ service:
   port: 80
   targetPort: 8000
 
-# ==================== 环境特异性矩阵 ====================
+# environment prod or staging
+
 {{- if eq $env "production" }}
 replicaCount: 2
+service:
+  type: LoadBalancer
 resources:
   limits:
     cpu: 500m
