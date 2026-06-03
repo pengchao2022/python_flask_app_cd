@@ -1,18 +1,26 @@
-{{- /*
-  动态 values 模板
-  这里可以根据环境动态生成配置值
-*/ -}}
-
-{{- /* 定义命名空间和完整名称 */ -}}
-{{- $namespace := .Release.Namespace | default "default" -}}
+{{- /* 1. 定义基础静态变量 */ -}}
+{{- $env := .Values.global.environment | default "production" -}}
+{{- $mysqlDb := "todo_db" -}}
+{{- $mysqlUser := "todo_user" -}}
+{{- $mysqlPwd := "StrongPassword123" -}}
 {{- $fullname := printf "%s-%s" .Release.Name .Chart.Name -}}
 
-{{- /* 设置镜像拉取策略 */ -}}
-image:
-  pullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
+# ==================== 基础应用与镜像配置 ====================
+global:
+  environment: {{ $env }}
 
-{{- /* 根据环境动态设置资源配置 */ -}}
-{{- if eq .Values.global.environment "production" }}
+image:
+  repository: pengchaoma/flask-todo-app
+  tag: {{ .Values.image.tag | default "latest" }}
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8000
+
+# ==================== 环境特异性矩阵 ====================
+{{- if eq $env "production" }}
 replicaCount: 3
 resources:
   limits:
@@ -22,7 +30,10 @@ resources:
     cpu: 500m
     memory: 512Mi
 mysql:
+  enabled: true
+  image: mysql:8.0
   persistence:
+    enabled: true
     size: 20Gi
   resources:
     requests:
@@ -31,7 +42,8 @@ mysql:
     limits:
       cpu: 1000m
       memory: 2Gi
-{{- else if eq .Values.global.environment "staging" }}
+
+{{- else if eq $env "staging" }}
 replicaCount: 2
 resources:
   limits:
@@ -41,7 +53,10 @@ resources:
     cpu: 250m
     memory: 256Mi
 mysql:
+  enabled: true
+  image: mysql:8.0
   persistence:
+    enabled: true
     size: 10Gi
   resources:
     requests:
@@ -50,7 +65,8 @@ mysql:
     limits:
       cpu: 500m
       memory: 1Gi
-{{- else }}
+
+{{- else }} {{- /* development */ -}}
 replicaCount: 1
 resources:
   limits:
@@ -60,6 +76,8 @@ resources:
     cpu: 100m
     memory: 128Mi
 mysql:
+  enabled: true
+  image: mysql:8.0
   persistence:
     enabled: false
   resources:
@@ -71,5 +89,12 @@ mysql:
       memory: 512Mi
 {{- end }}
 
-{{- /* 动态生成数据库连接字符串 */ -}}
-databaseUrl: "mysql+pymysql://{{ .Values.mysql.user }}:{{ .Values.mysql.password }}@{{ $fullname }}-mysql:3306/{{ .Values.mysql.database }}?charset=utf8mb4"
+# ==================== 常规共享及衍生配置 ====================
+mysqlStatic:
+  database: {{ $mysqlDb }}
+  user: {{ $mysqlUser }}
+  password: {{ $mysqlPwd }}
+  rootPassword: "RootPassword123"
+  port: 3306
+
+databaseUrl: "mysql+pymysql://{{ $mysqlUser }}:{{ $mysqlPwd }}@{{ $fullname }}-mysql:3306/{{ $mysqlDb }}?charset=utf8mb4"

@@ -1,28 +1,28 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "todo-app.fullname" . }}
-  labels:
-    {{- include "todo-app.labels" . | nindent 4 }}
+  name: {{ include "todo-app.fullname" . }}-web
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "todo-app.selectorLabels" . | nindent 6 }}
+      app: {{ include "todo-app.fullname" . }}-web
   template:
     metadata:
       labels:
-        {{- include "todo-app.selectorLabels" . | nindent 8 }}
+        app: {{ include "todo-app.fullname" . }}-web
     spec:
       containers:
-        - name: {{ .Chart.Name }}
-          image: {{ include "todo-app.image" . }}
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          ports:
-            - containerPort: {{ .Values.service.targetPort }}
-              name: http
-          env:
-            - name: DATABASE_URL
-              value: {{ .Values.databaseUrl | quote }}
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+      - name: web
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.service.targetPort }}
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "todo-app.fullname" . }}-mysql-secret
+              key: database-url
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
