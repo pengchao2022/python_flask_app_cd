@@ -4,6 +4,9 @@ kind: PersistentVolumeClaim
 metadata:
   name: {{ include "todo-app.fullname" . }}-mysql-pvc
 spec:
+  {{- if .Values.mysql.persistence.storageClass }}
+  storageClassName: {{ .Values.mysql.persistence.storageClass }}
+  {{- end }}
   accessModes:
     - ReadWriteOnce
   resources:
