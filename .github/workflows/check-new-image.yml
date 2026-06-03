@@ -1,0 +1,79 @@
+name: Check New Image and Update Helm Values
+
+on:
+  schedule:
+    # 每 10 分钟检查一次
+    - cron: '*/10 * * * *'
+  # 手动触发
+  workflow_dispatch:
+
+env:
+  DOCKER_USERNAME: your-docker-username  # 替换为你的 Docker Hub 用户名
+  IMAGE_NAME: flask-todo-app
+
+jobs:
+  check-and-update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout GitOps repo
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Install yq
+        run: |
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Get current image tag from values.yaml
+        id: current
+        run: |
+          CURRENT_TAG=$(yq eval '.image.tag' helm/todo-app/values.yaml)
+          echo "current_tag=${CURRENT_TAG}" >> $GITHUB_OUTPUT
+          echo "Current tag: ${CURRENT_TAG}"
+
+      - name: Get latest version tag from Docker Hub
+        id: latest
+        run: |
+          # 安装 jq
+          sudo apt-get update && sudo apt-get install -y jq
+          
+          TAGS_URL="https://hub.docker.com/v2/repositories/${DOCKER_USERNAME}/${IMAGE_NAME}/tags"
+          LATEST_TAG=$(curl -s "${TAGS_URL}?page_size=50" | \
+            jq -r '.results[] | select(.name | test("^[0-9]+\\.[0-9]+\\.[0-9]+$")) | .name' | \
+            sort -V | \
+            tail -n 1)
+          
+          if [ -n "${LATEST_TAG}" ]; then
+            echo "latest_tag=${LATEST_TAG}" >> $GITHUB_OUTPUT
+            echo "Found latest version tag: ${LATEST_TAG}"
+          else
+            echo "latest_tag=latest" >> $GITHUB_OUTPUT
+            echo "No version tag found, using latest"
+          fi
+
+      - name: Compare and update values.yaml
+        if: steps.current.outputs.current_tag != steps.latest.outputs.latest_tag
+        run: |
+          NEW_TAG="${{ steps.latest.outputs.latest_tag }}"
+          CURRENT_TAG="${{ steps.current.outputs.current_tag }}"
+          
+          echo "Updating values.yaml from ${CURRENT_TAG} to ${NEW_TAG}"
+          
+          # 更新 tag
+          yq eval -i ".image.tag = \"${NEW_TAG}\"" helm/todo-app/values.yaml
+          
+          # 配置 Git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions@github.com"
+          
+          # 提交并推送
+          git add helm/todo-app/values.yaml
+          git commit -m "Auto update image tag from ${CURRENT_TAG} to ${NEW_TAG}"
+          git push
+
+      - name: No update needed
+        if: steps.current.outputs.current_tag == steps.latest.outputs.latest_tag
+        run: echo "Image tag is up to date: ${{ steps.current.outputs.current_tag }}"

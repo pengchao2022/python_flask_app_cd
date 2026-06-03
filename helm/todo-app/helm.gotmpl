@@ -1,0 +1,75 @@
+{{- /*
+  动态 values 模板
+  这里可以根据环境动态生成配置值
+*/ -}}
+
+{{- /* 定义命名空间和完整名称 */ -}}
+{{- $namespace := .Release.Namespace | default "default" -}}
+{{- $fullname := printf "%s-%s" .Release.Name .Chart.Name -}}
+
+{{- /* 设置镜像拉取策略 */ -}}
+image:
+  pullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
+
+{{- /* 根据环境动态设置资源配置 */ -}}
+{{- if eq .Values.global.environment "production" }}
+replicaCount: 3
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+  requests:
+    cpu: 500m
+    memory: 512Mi
+mysql:
+  persistence:
+    size: 20Gi
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+{{- else if eq .Values.global.environment "staging" }}
+replicaCount: 2
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+mysql:
+  persistence:
+    size: 10Gi
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+{{- else }}
+replicaCount: 1
+resources:
+  limits:
+    cpu: 250m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+mysql:
+  persistence:
+    enabled: false
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 250m
+      memory: 512Mi
+{{- end }}
+
+{{- /* 动态生成数据库连接字符串 */ -}}
+databaseUrl: "mysql+pymysql://{{ .Values.mysql.user }}:{{ .Values.mysql.password }}@{{ $fullname }}-mysql:3306/{{ .Values.mysql.database }}?charset=utf8mb4"
