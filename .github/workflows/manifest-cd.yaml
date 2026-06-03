@@ -26,14 +26,24 @@ jobs:
         with:
           version: 'v3.14.0'
 
-      - name: Install Helmfile and Helm Diff Plugin
+      # 🚀 核心修复：纯手动解压安装，直接绕过 helm 命令的参数兼容问题
+      - name: Hardcode Install Helmfile & Helm Diff
         run: |
-          echo "Installing helm-diff with verification disabled..."
-          # 1. 强行注入 --verify=false 绕过 Helm 的签名检查缺陷
-          helm plugin install https://github.com/databus23/helm-diff --verify=false
+          echo "1. Manually downloading and linking helm-diff plugin..."
+          # 获取 helm 默认的插件存放路径
+          HELM_PLUGIN_DIR=$(helm env HELM_PLUGINS)
+          mkdir -p "$HELM_PLUGIN_DIR/helm-diff"
           
-          echo "Installing Helmfile CLI..."
-          # 2. 直接下载官方最新的静态二进制文件
+          # 直接下载并解压最新的 helm-diff 到目标目录
+          DIFF_VERSION=$(curl -s "https://api.github.com/repos/databus23/helm-diff/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
+          curl -Lo helm-diff.tgz "https://github.com/databus23/helm-diff/releases/download/v${DIFF_VERSION}/helm-diff-linux-amd64.tgz"
+          tar -zxf helm-diff.tgz -C "$HELM_PLUGIN_DIR/helm-diff"
+          
+          # 验证插件是否生效
+          helm plugin list
+
+          echo "2. Installing Helmfile CLI..."
+          # 直接下载官方最新的静态二进制文件
           HELMFILE_VERSION=$(curl -s "https://api.github.com/repos/helmfile/helmfile/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
           curl -Lo helmfile.tar.gz "https://github.com/helmfile/helmfile/releases/download/v${HELMFILE_VERSION}/helmfile_${HELMFILE_VERSION}_linux_amd64.tar.gz"
           tar -zxf helmfile.tar.gz helmfile
