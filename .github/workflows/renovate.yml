@@ -2,16 +2,15 @@ name: Run Renovate
 
 on:
   repository_dispatch:
-    types: [run-renovate]  # 由 Application Repo 触发
+    types: [run-renovate] 
   schedule:
-    - cron: '0 */6 * * *'  # 每 6 小时也运行一次（作为备份）
-  workflow_dispatch:        # 也可以手动触发
+    - cron: '0 */6 * * *'  
+  workflow_dispatch:        
 
 jobs:
   renovate:
     runs-on: ubuntu-latest
-    
-    # 🚀 修复点 1：显式声明流水线对仓库内容和 PR 的读写权限（防止默认只读限制）
+
     permissions:
       contents: write
       pull-requests: write
@@ -26,10 +25,7 @@ jobs:
       - name: Run Renovate
         uses: renovatebot/github-action@v40.0.0
         with:
-          # 🚀 修复点 2：如果你发现依然无法创建 PR，或者 PR 无法触发你的 CI 测试，
-          # 请把下面这行换成你之前配置过、有 repo 权限的 PAT（个人访问令牌）
-          # 例如：token: ${{ secrets.GITOPS_REPO_TOKEN }}
-          token: ${{ secrets.GITHUB_TOKEN }} 
+          token: ${{ secrets.GITOPS_PAT }} 
           configurationFile: renovate.json
         env:
           RENOVATE_AUTODISCOVER: 'true'
