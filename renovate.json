@@ -2,5 +2,25 @@
   "$schema": "https://json.schemastore.org/renovate-schema.json",
   "extends": [
     "config:recommended"
+  ],
+  "categories": ["docker", "helm"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": [
+        "\\.gotmpl$",
+        "helm\\.gotmpl$"
+      ],
+      "matchStrings": [
+        "repository:\\s*(?<depName>[^\\s]+)\\s+tag:\\s*(?<currentValue>[^\\s]+)"
+      ],
+      "datasourceTemplate": "docker"
+    }
+  ],
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["major", "minor", "patch"],
+      "labels": ["dependencies", "renovate"]
+    }
   ]
 }
