@@ -8,7 +8,8 @@ spec:
   {{- if eq (.Values.mysql.kind | default "Deployment") "StatefulSet" }}
   serviceName: {{ include "todo-app.fullname" . }}-mysql
   {{- end }}
-  replicas: 1
+  # 🚀 核心修改：动态读取 values 里的副本数，如果 helm.gotmpl 里没传，默认就是 1
+  replicas: {{ .Values.mysql.replicaCount | default 1 }}
   selector:
     matchLabels:
       app: {{ include "todo-app.fullname" . }}-mysql

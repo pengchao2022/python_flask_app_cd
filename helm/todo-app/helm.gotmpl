@@ -37,17 +37,18 @@ service:
 
 # ==================== 环境特异性矩阵 ====================
 {{- if eq $env "production" }}
-replicaCount: 3
+replicaCount: 2
 resources:
   limits:
-    cpu: 1000m
-    memory: 1Gi
-  requests:
     cpu: 500m
-    memory: 512Mi
+    memory: 512Gi
+  requests:
+    cpu: 100m
+    memory: 256Mi
 mysql:
   kind: StatefulSet       # 🚀 1. 新增：控制生产环境的 MySQL 渲染为有状态集
   enabled: true
+  replicaCount: 1
   image: mysql:8.0
   persistence:
     enabled: true
@@ -79,11 +80,11 @@ mysql:
     size: 10Gi
   resources:
     requests:
-      cpu: 250m
-      memory: 512Mi
+      cpu: 100m
+      memory: 256Mi
     limits:
       cpu: 500m
-      memory: 1Gi
+      memory: 512Gi
 
 {{- else }} {{- /* development */ -}}
 replicaCount: 1
