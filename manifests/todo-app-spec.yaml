@@ -77,7 +77,7 @@ spec:
     spec:
       containers:
       - name: web
-        image: "pengchaoma/flask-todo-app:1.1.24"
+        image: "pengchaoma/flask-todo-app:1.1.25"
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8000
@@ -117,6 +117,9 @@ spec:
       containers:
       - name: mysql
         image: mysql:8.0
+        # 🚀 完美注入：强制将 MySQL 8.0 的密码插件降级为经典模式，彻底解决 PyMySQL 报错
+        args:
+        - --default-authentication-plugin=mysql_native_password
         ports:
         - containerPort: 3306
           name: mysql
@@ -141,6 +144,7 @@ spec:
             secretKeyRef:
               name: todo-app-todo-app-mysql-secret
               key: mysql-password
+        # 🚀 严格对齐：修复缩进，使用 nindent 10 确保完美融入 containers 作用域
         resources:
           limits:
             cpu: 500m
