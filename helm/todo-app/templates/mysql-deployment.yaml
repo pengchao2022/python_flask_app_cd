@@ -1,8 +1,13 @@
 apiVersion: apps/v1
-kind: Deployment
+# 🚀 动态读取 values 里的工作负载类型，默认值为 Deployment
+kind: {{ .Values.mysql.kind | default "Deployment" }}
 metadata:
   name: {{ include "todo-app.fullname" . }}-mysql
 spec:
+  # 🚀 如果配置为 StatefulSet，根据 K8s 规范必须输出 serviceName
+  {{- if eq (.Values.mysql.kind | default "Deployment") "StatefulSet" }}
+  serviceName: {{ include "todo-app.fullname" . }}-mysql
+  {{- end }}
   replicas: 1
   selector:
     matchLabels:
