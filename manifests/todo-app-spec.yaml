@@ -28,7 +28,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: todo-app-todo-app-mysql-pvc
 spec:
-  storageClassName: gp2-immediate
+  storageClassName: gp2
   accessModes:
     - ReadWriteOnce
   resources:
@@ -77,7 +77,7 @@ spec:
     spec:
       containers:
       - name: web
-        image: "pengchaoma/flask-todo-app:1.1.23"
+        image: "pengchaoma/flask-todo-app:1.1.24"
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8000
