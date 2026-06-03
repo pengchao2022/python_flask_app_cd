@@ -35,12 +35,16 @@ service:
   port: 80
   targetPort: 8000
 
-# environment prod or staging
+# prod / staging / dev
 
 {{- if eq $env "production" }}
 replicaCount: 2
+
 service:
   type: LoadBalancer
+  port: 80
+  targetPort: 8000
+  
 resources:
   limits:
     cpu: 500m
