@@ -1,5 +1,5 @@
-{{- /* 1. 定义基础静态变量 */ -}}
-{{- $env := "production" -}}
+{{- /* define base static variables */ -}} # this is helm template Comment Block
+{{- $env := "production" -}}    # go language 
 {{- if .Values.global }}
   {{- $env = .Values.global.environment | default "production" -}}
 {{- end -}}
@@ -7,10 +7,10 @@
 {{- $mysqlUser := "todo_user" -}}
 {{- $mysqlPwd := "StrongPassword123" -}}
 
-{{- /* 🚀 核心修复 1：通过隐式类型转化，彻底绕过 Helmfile 结构体与 Map 的类型检查限制 */ -}}
+{{- /* Completely bypasses type checking restrictions for Helmfile structs and Maps via implicit type conversion */ -}}
 {{- $chartName := "todo-app" -}}
 {{- if printf "%T" . | printf "%s" | contains "Release" }}
-  {{- /* 🚀 核心修复 2：去掉了 {{ end }} 内部多余的空格 */ -}}
+  {{- /* Removed extra spaces inside {{ end }} */ -}}
   {{- if .Chart }}{{ $chartName = .Chart.Name }}{{ end }}
 {{- end -}}
 
@@ -21,7 +21,7 @@
 
 {{- $fullname := printf "%s-%s" $releaseName $chartName -}}
 
-# ==================== 基础应用与镜像配置 ====================
+# application and image config
 global:
   environment: {{ $env }}
 
@@ -116,7 +116,7 @@ mysql:
       memory: 512Mi
 {{- end }}
 
-# ==================== 常规共享及衍生配置 ====================
+# mysql auth configration
 mysqlStatic:
   database: {{ $mysqlDb }}
   user: {{ $mysqlUser }}
