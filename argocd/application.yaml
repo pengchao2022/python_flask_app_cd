@@ -2,17 +2,18 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: todo-app
-  namespace: argocd    
+  namespace: argocd
 spec:
   project: default
   source:
     repoURL: https://github.com/pengchao2022/python_flask_app_cd
     targetRevision: main
     path: helm/todo-app
-    
+    plugin:
+      name: helmfile
   destination:
     server: https://kubernetes.default.svc
-    namespace: todo-app # application namaspace
+    namespace: todo-app
   syncPolicy:
     automated:
       prune: true
