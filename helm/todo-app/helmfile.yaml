@@ -3,11 +3,6 @@ environments:
     values:
       - global:
           environment: production
-      # 🚀 核心修复：把 Helmfile 缺失的 Chart 和 Release 对象亲手伪装并补给它！
-      - Chart:
-          Name: todo-app  # 对应你的 .Chart.Name
-      - Release:
-          Name: todo-app  # 对应你的 .Release.Name
 
 # 用三个横杠劈开环境与发布
 ---
