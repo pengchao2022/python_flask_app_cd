@@ -12,13 +12,22 @@ stringData:
   mysql-database: "todo_db"
   database-url: "mysql+pymysql://todo_user:StrongPassword123@todo-app-todo-app-mysql:3306/todo_db?charset=utf8mb4"
 ---
+# Source: todo-app/templates/storageclass.yaml
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: gp2-immediate
+provisioner: ebs.csi.aws.com 
+volumeBindingMode: Immediate
+reclaimPolicy: Delete
+allowVolumeExpansion: true
+---
 # Source: todo-app/templates/mysql-pvc.yaml
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: todo-app-todo-app-mysql-pvc
 spec:
-  storageClassName: gp2-immediate
   accessModes:
     - ReadWriteOnce
   resources:
@@ -87,11 +96,10 @@ spec:
 ---
 # Source: todo-app/templates/mysql-deployment.yaml
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   name: todo-app-todo-app-mysql
 spec:
-  serviceName: todo-app-todo-app-mysql
   replicas: 1
   selector:
     matchLabels:
