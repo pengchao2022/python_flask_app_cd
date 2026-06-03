@@ -2,13 +2,11 @@ name: Check New Image and Update Helm Values
 
 on:
   schedule:
-    # 每 10 分钟检查一次
+    # check every 10 minutes
     - cron: '*/10 * * * *'
-  # 手动触发
-  workflow_dispatch:
 
 env:
-  DOCKER_USERNAME: your-docker-username  # 替换为你的 Docker Hub 用户名
+  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   IMAGE_NAME: flask-todo-app
 
 jobs:
