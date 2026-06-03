@@ -12,6 +12,25 @@ stringData:
   mysql-database: "todo_db"
   database-url: "mysql+pymysql://todo_user:StrongPassword123@todo-app-todo-app-mysql:3306/todo_db?charset=utf8mb4"
 ---
+# Source: todo-app/templates/mysql-deployment.yaml
+# 🚀 多资源分隔符：在同一个文件内追加声明用于“洗白”密码验证方式的 ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: todo-app-todo-app-mysql-init-script
+data:
+  # 当 MySQL 容器发现 data 目录为空、触发初始化时，会自动按顺序执行这里面的 SQL
+  init.sql: |
+    -- 1. 洗白 root 账号的认证方式
+    ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY 'RootPassword123';
+    
+    -- 2. 🎯 精准洗白普通应用账号的认证方式
+    -- Helm 会在部署时自动把这里的 todo_user 和 StrongPassword123 替换掉
+    -- 这样就不需要你在代码里写死任何明文，完美对接你的 Secret！
+    ALTER USER 'todo_user'@'%' IDENTIFIED WITH mysql_native_password BY 'StrongPassword123';
+    
+    FLUSH PRIVILEGES;
+---
 # Source: todo-app/templates/storageclass.yaml
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
@@ -77,7 +96,7 @@ spec:
     spec:
       containers:
       - name: web
-        image: "pengchaoma/flask-todo-app:1.1.25"
+        image: "pengchaoma/flask-todo-app:1.1.26"
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8000
@@ -144,7 +163,7 @@ spec:
             secretKeyRef:
               name: todo-app-todo-app-mysql-secret
               key: mysql-password
-        # 🚀 严格对齐：修复缩进，使用 nindent 10 确保完美融入 containers 作用域
+        # 🚀 严格对齐：使用 nindent 10 确保完美融入 containers 作用域
         resources:
           limits:
             cpu: 500m
@@ -155,8 +174,15 @@ spec:
         volumeMounts:
         - name: mysql-storage
           mountPath: /var/lib/mysql
+        # 🚀 完美注入挂载点：把 ConfigMap 里的 init.sql 挂载进 MySQL 官方指定的初始化目录
+        - name: mysql-init-volume
+          mountPath: /docker-entrypoint-initdb.d
       volumes:
       - name: mysql-storage
         persistentVolumeClaim:
           claimName: todo-app-todo-app-mysql-pvc
+      # 🚀 完美注入卷声明：把下面的 ConfigMap 包装成一个 K8s 虚拟只读磁盘
+      - name: mysql-init-volume
+        configMap:
+          name: todo-app-todo-app-mysql-init-script
 
