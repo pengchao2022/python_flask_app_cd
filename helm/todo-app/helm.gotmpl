@@ -55,11 +55,11 @@ mysql:
     storageClass: "gp2-immediate"  # 🚀 2. 修改：将旧的 gp2 替换为高效的高速通道
   resources:
     requests:
-      cpu: 500m
-      memory: 1Gi
+      cpu: 100m
+      memory: 256Mi
     limits:
-      cpu: 1000m
-      memory: 2Gi
+      cpu: 500m
+      memory: 512Mi
 
 {{- else if eq $env "staging" }}
 replicaCount: 2
