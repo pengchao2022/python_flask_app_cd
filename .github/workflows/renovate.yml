@@ -10,6 +10,13 @@ on:
 jobs:
   renovate:
     runs-on: ubuntu-latest
+    
+    # 🚀 修复点 1：显式声明流水线对仓库内容和 PR 的读写权限（防止默认只读限制）
+    permissions:
+      contents: write
+      pull-requests: write
+      statuses: read
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -19,7 +26,11 @@ jobs:
       - name: Run Renovate
         uses: renovatebot/github-action@v40.0.0
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # 🚀 修复点 2：如果你发现依然无法创建 PR，或者 PR 无法触发你的 CI 测试，
+          # 请把下面这行换成你之前配置过、有 repo 权限的 PAT（个人访问令牌）
+          # 例如：token: ${{ secrets.GITOPS_REPO_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }} 
           configurationFile: renovate.json
-          args: |
-            ${{ github.repository }}
+        env:
+          RENOVATE_AUTODISCOVER: 'true'
+          RENOVATE_AUTODISCOVER_FILTER: ${{ github.repository }}

@@ -1,26 +1,6 @@
 {
-  "extends": ["config:recommended"],
-  "baseBranches": ["main"],
-  "customManagers": [
-    {
-      "customType": "regex",
-      "fileMatch": ["^helm/todo-app/values.yaml$"],
-      "matchStrings": [
-        "repository: (?<depName>.*?)\\n\\s+tag: (?<currentValue>.*)"
-      ],
-      "datasourceTemplate": "docker"
-    }
-  ],
-  "packageRules": [
-    {
-      "matchUpdateTypes": ["patch", "minor"],
-      "automerge": false,
-      "labels": ["dependencies", "renovate"]
-    },
-    {
-      "matchUpdateTypes": ["major"],
-      "automerge": false,
-      "labels": ["dependencies", "major-update", "renovate"]
-    }
+  "$schema": "https://json.schemastore.org/renovate-schema.json",
+  "extends": [
+    "config:recommended"
   ]
 }
