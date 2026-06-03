@@ -9,9 +9,7 @@ spec:
     repoURL: https://github.com/pengchao2022/python_flask_app_cd
     targetRevision: main
     path: helm/todo-app
-    helm:
-      valueFiles:
-        - helm.gotmpl
+    
   destination:
     server: https://kubernetes.default.svc
     namespace: todo-app # application namaspace
