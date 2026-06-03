@@ -30,3 +30,4 @@ jobs:
         env:
           RENOVATE_AUTODISCOVER: 'true'
           RENOVATE_AUTODISCOVER_FILTER: ${{ github.repository }}
+          LOG_LEVEL: "debug"
