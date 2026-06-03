@@ -48,12 +48,15 @@ spec:
             secretKeyRef:
               name: {{ include "todo-app.fullname" . }}-mysql-secret
               key: mysql-password
-        # 🚀 严格对齐：修复缩进，使用 nindent 10 确保完美融入 containers 作用域
+        # 🚀 严格对齐：使用 nindent 10 确保完美融入 containers 作用域
         resources:
           {{- toYaml .Values.mysql.resources | nindent 10 }}
         volumeMounts:
         - name: mysql-storage
           mountPath: /var/lib/mysql
+        # 🚀 完美注入挂载点：把 ConfigMap 里的 init.sql 挂载进 MySQL 官方指定的初始化目录
+        - name: mysql-init-volume
+          mountPath: /docker-entrypoint-initdb.d
       volumes:
       - name: mysql-storage
         {{- if .Values.mysql.persistence.enabled }}
@@ -62,3 +65,26 @@ spec:
         {{- else }}
         emptyDir: {}
         {{- end }}
+      # 🚀 完美注入卷声明：把下面的 ConfigMap 包装成一个 K8s 虚拟只读磁盘
+      - name: mysql-init-volume
+        configMap:
+          name: {{ include "todo-app.fullname" . }}-mysql-init-script
+
+---
+# 🚀 多资源分隔符：在同一个文件内追加声明用于“洗白”密码验证方式的 ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "todo-app.fullname" . }}-mysql-init-script
+data:
+  # 当 MySQL 容器发现 data 目录为空、触发初始化时，会自动按顺序执行这里面的 SQL
+  init.sql: |
+    -- 1. 洗白 root 账号的认证方式
+    ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY '{{ .Values.mysqlStatic.rootPassword }}';
+    
+    -- 2. 🎯 精准洗白普通应用账号的认证方式
+    -- Helm 会在部署时自动把这里的 {{ .Values.mysqlStatic.user }} 和 {{ .Values.mysqlStatic.password }} 替换掉
+    -- 这样就不需要你在代码里写死任何明文，完美对接你的 Secret！
+    ALTER USER '{{ .Values.mysqlStatic.user }}'@'%' IDENTIFIED WITH mysql_native_password BY '{{ .Values.mysqlStatic.password }}';
+    
+    FLUSH PRIVILEGES;
