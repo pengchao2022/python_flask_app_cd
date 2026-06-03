@@ -37,17 +37,18 @@ service:
 
 # ==================== 环境特异性矩阵 ====================
 {{- if eq $env "production" }}
-replicaCount: 3
+replicaCount: 2
 resources:
   limits:
-    cpu: 1000m
-    memory: 1Gi
-  requests:
     cpu: 500m
     memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 256Mi
 mysql:
   kind: StatefulSet       # 🚀 1. 新增：控制生产环境的 MySQL 渲染为有状态集
   enabled: true
+  replicaCount: 1
   image: mysql:8.0
   persistence:
     enabled: true
@@ -55,11 +56,11 @@ mysql:
     storageClass: "gp2-immediate"  # 🚀 2. 修改：将旧的 gp2 替换为高效的高速通道
   resources:
     requests:
-      cpu: 500m
-      memory: 1Gi
+      cpu: 100m
+      memory: 256Mi
     limits:
-      cpu: 1000m
-      memory: 2Gi
+      cpu: 500m
+      memory: 512Mi
 
 {{- else if eq $env "staging" }}
 replicaCount: 2
@@ -71,7 +72,7 @@ resources:
     cpu: 250m
     memory: 256Mi
 mysql:
-  kind: Deployment        # 🚀 预留：测试环境可以用普通的 Deployment 节省成本
+  kind: Deployment        
   enabled: true
   image: mysql:8.0
   persistence:
@@ -79,11 +80,11 @@ mysql:
     size: 10Gi
   resources:
     requests:
-      cpu: 250m
-      memory: 512Mi
+      cpu: 100m
+      memory: 256Mi
     limits:
       cpu: 500m
-      memory: 1Gi
+      memory: 512Gi
 
 {{- else }} {{- /* development */ -}}
 replicaCount: 1
