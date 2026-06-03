@@ -1,4 +1,5 @@
-{{/* 定义应用的全称 */}}
+{{/* define application name */}}
 {{- define "todo-app.fullname" -}}
-{{- printf "%s-%s" .Release.Name .Chart.Name | truncate 63 | trimSuffix "-" -}}
+{{- /* Helm Official trunc */ -}}
+{{- printf "%s-%s" .Release.Name .Chart.Name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
