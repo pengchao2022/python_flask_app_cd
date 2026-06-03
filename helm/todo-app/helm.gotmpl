@@ -1,9 +1,17 @@
 {{- /* 1. 定义基础静态变量 */ -}}
-{{- $env := .Values.global.environment | default "production" -}}
+{{- $env := "production" -}}
+{{- if .Values.global }}
+  {{- $env = .Values.global.environment | default "production" -}}
+{{- end -}}
 {{- $mysqlDb := "todo_db" -}}
 {{- $mysqlUser := "todo_user" -}}
 {{- $mysqlPwd := "StrongPassword123" -}}
-{{- $fullname := printf "%s-%s" .Release.Name .Chart.Name -}}
+
+# 🚀 核心修复：在这里加一个守护判断。如果是 Helmfile 盲读阶段，直接使用硬编码兜底，防止报错熔断
+{{- $chartName := "todo-app" -}}
+{{- if hasKey . "Chart" }}{{ if .Chart }}{{ $chartName = .Chart.Name }}{{ end }}{{ end -}}
+{{- $releaseName := .Release.Name | default "todo-app" -}}
+{{- $fullname := printf "%s-%s" $releaseName $chartName -}}
 
 # ==================== 基础应用与镜像配置 ====================
 global:
