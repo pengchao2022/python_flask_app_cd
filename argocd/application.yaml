@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: todo-app
-  namespace: argocd
+  namespace: argocd    
 spec:
   project: default
   source:
@@ -11,10 +11,10 @@ spec:
     path: helm/todo-app
     helm:
       valueFiles:
-        - values.yaml
+        - helm.gotmpl
   destination:
     server: https://kubernetes.default.svc
-    namespace: todo-app
+    namespace: todo-app # application namaspace
   syncPolicy:
     automated:
       prune: true
