@@ -46,14 +46,14 @@ resources:
     cpu: 100m
     memory: 256Mi
 mysql:
-  kind: StatefulSet       # 🚀 1. 新增：控制生产环境的 MySQL 渲染为有状态集
+  kind: StatefulSet     
   enabled: true
   replicaCount: 1
   image: mysql:8.0
   persistence:
     enabled: true
     size: 20Gi
-    storageClass: "gp2-immediate"  # 🚀 2. 修改：将旧的 gp2 替换为高效的高速通道
+    storageClass: "gp2" 
   resources:
     requests:
       cpu: 100m
