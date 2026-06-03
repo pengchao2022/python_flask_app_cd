@@ -3,6 +3,9 @@
   "extends": [
     "config:recommended"
   ],
+  "prHourlyLimit": 0,
+  "prConcurrentLimit": 0,
+  "recreateWhen": "always",
   "customManagers": [
     {
       "customType": "regex",
