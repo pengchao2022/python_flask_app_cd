@@ -16,7 +16,7 @@ jobs:
     if: |
       github.event.pull_request.merged == true && 
       github.event.pull_request.base.ref == 'main' &&
-      github.event.pull_request.user.login == 'renovate[bot]'
+      startsWith(github.event.pull_request.title, 'chore(deps):')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout GitOps Repo
