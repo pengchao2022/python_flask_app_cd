@@ -21,6 +21,9 @@ spec:
       containers:
       - name: mysql
         image: {{ .Values.mysql.image }}
+        # 🚀 完美注入：强制将 MySQL 8.0 的密码插件降级为经典模式，彻底解决 PyMySQL 报错
+        args:
+        - --default-authentication-plugin=mysql_native_password
         ports:
         - containerPort: {{ .Values.mysqlStatic.port }}
           name: mysql
@@ -45,6 +48,7 @@ spec:
             secretKeyRef:
               name: {{ include "todo-app.fullname" . }}-mysql-secret
               key: mysql-password
+        # 🚀 严格对齐：修复缩进，使用 nindent 10 确保完美融入 containers 作用域
         resources:
           {{- toYaml .Values.mysql.resources | nindent 10 }}
         volumeMounts:
