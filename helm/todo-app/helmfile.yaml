@@ -1,21 +1,15 @@
 environments:
-  production:
+  default:
     values:
       - global:
-          environment: "production"
-  staging:
-    values:
-      - global:
-          environment: "staging"
-  development:
-    values:
-      - global:
-          environment: "development"
+          environment: production 
+
+
 ---
 
 releases:
   - name: todo-app
     chart: .
-    namespace: argocd
+    namespace: todo-app
     values:
-      - ./helm.gotmpl # values dynamicly 
+      - ./helm.gotmpl
