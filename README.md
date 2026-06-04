@@ -4,6 +4,8 @@ devops demo
 
 ## Usage
 
+# the best advice is you can install EBS CSI controller by Terraform
+
 - Install eksctl
 ```shell
 brew install eksctl
@@ -50,3 +52,7 @@ kubectl delete pvc todo-app-todo-app-mysql-pvc -n todo-app
 ```shell
 kubectl delete pod todo-app-todo-app-mysql-74698d88cf-6m45l -n todo-app
 ```
+- Cleanup the pod resource
+```shell
+ kubectl scale deployment todo-app-todo-app-web -n todo-app --replicas=0
+ ```
