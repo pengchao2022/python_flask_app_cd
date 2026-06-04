@@ -4,6 +4,8 @@ devops demo
 
 ## Usage
 
+# the best advice is you can install EBS CSI controller by Terraform
+
 - Install eksctl
 ```shell
 brew install eksctl
