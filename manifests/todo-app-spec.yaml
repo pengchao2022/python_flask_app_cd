@@ -81,7 +81,7 @@ kind: Deployment
 metadata:
   name: todo-app-todo-app-web
 spec:
-  replicas: 4
+  replicas: 1
   selector:
     matchLabels:
       app: todo-app-todo-app-web
@@ -92,7 +92,7 @@ spec:
     spec:
       containers:
       - name: web
-        image: "pengchaoma/flask-todo-app:1.1.30"
+        image: "pengchaoma/flask-todo-app:1.1.31"
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8000
