@@ -79,5 +79,14 @@ ip-10-0-12-149.ec2.internal   35m          1%       662Mi           46%
 ip-10-0-13-193.ec2.internal   46m          2%       842Mi           58%         
 
 ```
+- check the ALB for web access 
+```shell
+allen@192 aws_terraform_eks_karpenter % kubectl get svc -n todo-app
+NAME                            TYPE           CLUSTER-IP       EXTERNAL-IP                                                              PORT(S)        AGE
+todo-app-todo-app-mysql         ClusterIP      172.20.204.189   <none>                                                                   3306/TCP       5h45m
+todo-app-todo-app-web-service   LoadBalancer   172.20.19.137    a0bfc4576fd304708bf0e79d95a44c55-484253965.us-east-1.elb.amazonaws.com   80:31792/TCP   5h45m
+```
+
+
 
 
