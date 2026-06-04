@@ -29,24 +29,24 @@ jobs:
         with:
           version: 'v3.14.0'
 
-      # 🚀 核心修复：纯手动解压安装，直接绕过 helm 命令的参数兼容问题
+    
       - name: Hardcode Install Helmfile & Helm Diff
         run: |
           echo "1. Manually downloading and linking helm-diff plugin..."
-          # 获取 helm 默认的插件存放路径
+          # get helm plugin defalut path
           HELM_PLUGIN_DIR=$(helm env HELM_PLUGINS)
           mkdir -p "$HELM_PLUGIN_DIR/helm-diff"
           
-          # 直接下载并解压最新的 helm-diff 到目标目录
+          # unzip helm diff to target directory
           DIFF_VERSION=$(curl -s "https://api.github.com/repos/databus23/helm-diff/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
           curl -Lo helm-diff.tgz "https://github.com/databus23/helm-diff/releases/download/v${DIFF_VERSION}/helm-diff-linux-amd64.tgz"
           tar -zxf helm-diff.tgz -C "$HELM_PLUGIN_DIR/helm-diff"
           
-          # 验证插件是否生效
+          # check if plugin works or not 
           helm plugin list
 
           echo "2. Installing Helmfile CLI..."
-          # 直接下载官方最新的静态二进制文件
+          # downlod from official
           HELMFILE_VERSION=$(curl -s "https://api.github.com/repos/helmfile/helmfile/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
           curl -Lo helmfile.tar.gz "https://github.com/helmfile/helmfile/releases/download/v${HELMFILE_VERSION}/helmfile_${HELMFILE_VERSION}_linux_amd64.tar.gz"
           tar -zxf helmfile.tar.gz helmfile

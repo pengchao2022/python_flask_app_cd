@@ -4,7 +4,7 @@ environments:
       - global:
           environment: production
 
-# 用三个横杠劈开环境与发布
+# Use three horizontal lines to separate the environment and the release
 ---
 
 releases:
