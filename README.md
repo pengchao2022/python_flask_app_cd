@@ -56,3 +56,28 @@ kubectl delete pod todo-app-todo-app-mysql-74698d88cf-6m45l -n todo-app
 ```shell
  kubectl scale deployment todo-app-todo-app-web -n todo-app --replicas=0
  ```
+
+## Resources Usage Minitor
+
+- Check how much memory the pod cost 
+```shell
+allen@192 aws_terraform_eks_karpenter % kubectl top pods -n todo-app
+NAME                                     CPU(cores)   MEMORY(bytes)   
+todo-app-todo-app-mysql-0                7m           389Mi           
+todo-app-todo-app-web-786cccf8b5-9m74m   1m           51Mi            
+todo-app-todo-app-web-786cccf8b5-j8xq5   1m           51Mi            
+
+
+```
+- Check how much memory the nodes cost
+```shell
+allen@192 aws_terraform_eks_karpenter % kubectl top nodes
+NAME                          CPU(cores)   CPU(%)   MEMORY(bytes)   MEMORY(%)   
+ip-10-0-11-23.ec2.internal    57m          2%       1179Mi          82%         
+ip-10-0-11-245.ec2.internal   54m          2%       882Mi           61%         
+ip-10-0-12-149.ec2.internal   35m          1%       662Mi           46%         
+ip-10-0-13-193.ec2.internal   46m          2%       842Mi           58%         
+
+```
+
+
