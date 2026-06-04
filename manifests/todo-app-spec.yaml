@@ -13,20 +13,16 @@ stringData:
   database-url: "mysql+pymysql://todo_user:StrongPassword123@todo-app-todo-app-mysql:3306/todo_db?charset=utf8mb4"
 ---
 # Source: todo-app/templates/mysql-deployment.yaml
-# 🚀 多资源分隔符：在同一个文件内追加声明用于“洗白”密码验证方式的 ConfigMap
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: todo-app-todo-app-mysql-init-script
 data:
-  # 当 MySQL 容器发现 data 目录为空、触发初始化时，会自动按顺序执行这里面的 SQL
+  
   init.sql: |
-    -- 1. 洗白 root 账号的认证方式
+    
     ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY 'RootPassword123';
     
-    -- 2. 🎯 精准洗白普通应用账号的认证方式
-    -- Helm 会在部署时自动把这里的 todo_user 和 StrongPassword123 替换掉
-    -- 这样就不需要你在代码里写死任何明文，完美对接你的 Secret！
     ALTER USER 'todo_user'@'%' IDENTIFIED WITH mysql_native_password BY 'StrongPassword123';
     
     FLUSH PRIVILEGES;
@@ -96,7 +92,7 @@ spec:
     spec:
       containers:
       - name: web
-        image: "pengchaoma/flask-todo-app:1.1.28"
+        image: "pengchaoma/flask-todo-app:1.1.29"
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8000
@@ -116,14 +112,14 @@ spec:
 ---
 # Source: todo-app/templates/mysql-deployment.yaml
 apiVersion: apps/v1
-# 🚀 动态读取 values 里的工作负载类型，默认值为 Deployment
+# default kind is deployment if gotmpl not provide kind
 kind: StatefulSet
 metadata:
   name: todo-app-todo-app-mysql
 spec:
-  # 🚀 如果配置为 StatefulSet，根据 K8s 规范必须输出 serviceName
+  # if is Statefule set then must have serviceName
   serviceName: todo-app-todo-app-mysql
-  # 🚀 核心修改：动态读取 values 里的副本数，如果 helm.gotmpl 里没传，默认就是 1
+  # defalut replica is 1
   replicas: 1
   selector:
     matchLabels:
@@ -136,7 +132,6 @@ spec:
       containers:
       - name: mysql
         image: mysql:8.0
-        # 🚀 完美注入：强制将 MySQL 8.0 的密码插件降级为经典模式，彻底解决 PyMySQL 报错
         args:
         - --default-authentication-plugin=mysql_native_password
         ports:
@@ -163,7 +158,7 @@ spec:
             secretKeyRef:
               name: todo-app-todo-app-mysql-secret
               key: mysql-password
-        # 🚀 严格对齐：使用 nindent 10 确保完美融入 containers 作用域
+        # Strict alignment: Use nindent 10 to ensure perfect integration into containers scope
         resources:
           limits:
             cpu: 500m
@@ -174,14 +169,14 @@ spec:
         volumeMounts:
         - name: mysql-storage
           mountPath: /var/lib/mysql
-        # 🚀 完美注入挂载点：把 ConfigMap 里的 init.sql 挂载进 MySQL 官方指定的初始化目录
+        
         - name: mysql-init-volume
           mountPath: /docker-entrypoint-initdb.d
       volumes:
       - name: mysql-storage
         persistentVolumeClaim:
           claimName: todo-app-todo-app-mysql-pvc
-      # 🚀 完美注入卷声明：把下面的 ConfigMap 包装成一个 K8s 虚拟只读磁盘
+      
       - name: mysql-init-volume
         configMap:
           name: todo-app-todo-app-mysql-init-script
