@@ -38,7 +38,7 @@ service:
 # prod / staging / dev
 
 {{- if eq $env "production" }}
-replicaCount: 4
+replicaCount: 1
 
 service:
   type: LoadBalancer
