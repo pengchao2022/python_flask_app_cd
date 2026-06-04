@@ -1,5 +1,6 @@
 # python_flask_app_cd
-devops demo
+
+This repo is for GitOps CD part , will use renovate to update the iamge tag then generate manifest for ArgoCD , then to deploy webapp to AWS EKS
 
 
 ## Usage
