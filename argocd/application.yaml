@@ -15,7 +15,9 @@ spec:
     namespace: todo-app
   syncPolicy:
     automated:
-      prune: true
-      selfHeal: true
+      prune: true # perform full matching and synchronization
+      selfHeal: true # automatically fix wrong configration
     syncOptions:
       - CreateNamespace=true
+      - ServerSideApply=true  # to solve resource conflicts
+
